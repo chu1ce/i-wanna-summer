@@ -1,174 +1,275 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>До лета</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            padding: 10px;
-        }
-        
-        .container { text-align: center; }
-        
-        .title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
-        
-        .countdown {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .time-block {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 12px 8px;
-            min-width: 60px;
-        }
-        
-        .time-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
-        
-        .time-label {
-            font-size: 0.65rem;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .summer {
-            font-size: 1.5rem;
-            animation: pulse 2s infinite;
-        }
-        
-        .summer-emoji {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 10px;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>До лета</title>
+  <style>
+    :root{
+      --bg: #ffffff;
+      --card: #ffffff;
+      --stroke: rgba(0,0,0,.10);
+      --text: rgba(0,0,0,.88);
+      --muted: rgba(0,0,0,.56);
+      --shadow: 0 10px 26px rgba(0,0,0,.10);
+      --radius: 16px;
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      background: var(--bg);
+      display:grid;
+      place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      padding: 10px;
+    }
+
+    .widget{
+      width: min(360px, 100%);
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      padding: 14px 14px 12px;
+      overflow: hidden;
+    }
+
+    .top{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .title{
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: .2px;
+      margin:0;
+    }
+    .badge{
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--stroke);
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      background: rgba(0,0,0,.02);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .cell{
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 10px 8px 8px;
+      text-align:center;
+      background: rgba(0,0,0,.02);
+      min-height: 64px;
+      display:grid;
+      align-content:center;
+      gap: 4px;
+    }
+
+    .num{
+      font-variant-numeric: tabular-nums;
+      font-size: 18px;
+      font-weight: 750;
+      line-height: 1.05;
+    }
+    .lbl{
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.1;
+    }
+
+    .state{
+      margin: 6px 0 2px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .summer{
+      display:none;
+      border: 1px solid var(--stroke);
+      border-radius: 14px;
+      padding: 14px 12px;
+      text-align:center;
+      background: rgba(0,0,0,.02);
+    }
+    .summer h2{
+      margin: 0 0 6px;
+      font-size: 18px;
+      letter-spacing: .2px;
+    }
+    .summer p{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .dot{
+      width:6px;height:6px;border-radius:50%;
+      background: rgba(0,0,0,.25);
+      display:inline-block;
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 340px){
+      .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div id="content"></div>
+  <div class="widget" role="group" aria-label="Счётчик до лета">
+    <div class="top">
+      <h1 class="title" id="headline">До лета осталось</h1>
+      <div class="badge" id="targetText">01.06</div>
     </div>
-    
-    <script>
-        function getMoscowTime() {
-            return new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Moscow"}));
-        }
-        
-        function isSummer(date) {
-            const month = date.getMonth();
-            return month >= 5 && month <= 7; // Июнь, Июль, Август
-        }
-        
-        function getNextSummerStart() {
-            const moscow = getMoscowTime();
-            let year = moscow.getFullYear();
-            
-            if (moscow.getMonth() > 7) year++; // После августа -> следующий год
-            
-            // 1 июня 00:00:00 по Москве
-            const summerMoscow = new Date(`${year}-06-01T00:00:00+03:00`);
-            return summerMoscow;
-        }
-        
-        function pluralize(n, forms) {
-            n = Math.abs(n) % 100;
-            const n1 = n % 10;
-            if (n > 10 && n < 20) return forms[2];
-            if (n1 > 1 && n1 < 5) return forms[1];
-            if (n1 === 1) return forms[0];
-            return forms[2];
-        }
-        
-        function updateCountdown() {
-            const content = document.getElementById('content');
-            const moscowNow = getMoscowTime();
-            
-            if (isSummer(moscowNow)) {
-                content.innerHTML = `
-                    <div class="summer">
-                        <span class="summer-emoji">☀️🌴🏖️</span>
-                        Сейчас лето!<br>Наслаждайся!
-                    </div>
-                `;
-                return;
-            }
-            
-            const summerStart = getNextSummerStart();
-            const diff = summerStart.getTime() - Date.now();
-            
-            if (diff <= 0) {
-                updateCountdown();
-                return;
-            }
-            
-            const totalSeconds = Math.floor(diff / 1000);
-            const totalMinutes = Math.floor(totalSeconds / 60);
-            const totalHours = Math.floor(totalMinutes / 60);
-            const totalDays = Math.floor(totalHours / 24);
-            
-            const months = Math.floor(totalDays / 30);
-            const days = totalDays % 30;
-            const hours = totalHours % 24;
-            const minutes = totalMinutes % 60;
-            const seconds = totalSeconds % 60;
-            
-            const year = summerStart.getFullYear();
-            
-            content.innerHTML = `
-                <h1 class="title">☀️ До лета ${year}</h1>
-                <div class="countdown">
-                    <div class="time-block">
-                        <div class="time-value">${months}</div>
-                        <div class="time-label">${pluralize(months, ['месяц', 'месяца', 'месяцев'])}</div>
-                    </div>
-                    <div class="time-block">
-                        <div class="time-value">${days}</div>
-                        <div class="time-label">${pluralize(days, ['день', 'дня', 'дней'])}</div>
-                    </div>
-                    <div class="time-block">
-                        <div class="time-value">${String(hours).padStart(2, '0')}</div>
-                        <div class="time-label">${pluralize(hours, ['час', 'часа', 'часов'])}</div>
-                    </div>
-                    <div class="time-block">
-                        <div class="time-value">${String(minutes).padStart(2, '0')}</div>
-                        <div class="time-label">${pluralize(minutes, ['минута', 'минуты', 'минут'])}</div>
-                    </div>
-                    <div class="time-block">
-                        <div class="time-value">${String(seconds).padStart(2, '0')}</div>
-                        <div class="time-label">${pluralize(seconds, ['секунда', 'секунды', 'секунд'])}</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    </script>
+
+    <div class="summer" id="summerBox">
+      <h2>Сейчас лето ☀️</h2>
+      <p>Время наслаждаться тёплыми днями.</p>
+    </div>
+
+    <div id="countdownBox">
+      <div class="state" id="subline">Считаем по московскому времени</div>
+      <div class="grid" id="grid">
+        <div class="cell"><div class="num" id="m">–</div><div class="lbl">месяцев</div></div>
+        <div class="cell"><div class="num" id="d">–</div><div class="lbl">дней</div></div>
+        <div class="cell"><div class="num" id="h">–</div><div class="lbl">часов</div></div>
+        <div class="cell"><div class="num" id="min">–</div><div class="lbl">минут</div></div>
+        <div class="cell"><div class="num" id="s">–</div><div class="lbl">секунд</div></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span class="dot"></span>
+      <span id="mskNow">МСК: —</span>
+    </div>
+  </div>
+
+  <script>
+    const MSK_OFFSET_MIN = 180;
+    const OFFSET_MS = MSK_OFFSET_MIN * 60_000;
+
+    const $ = (id) => document.getElementById(id);
+    const pad2 = (n) => String(n).padStart(2, "0");
+    const nowShiftedMs = () => Date.now() + OFFSET_MS;
+
+    function addMonthsClamped(dateShifted, monthsToAdd){
+      const y = dateShifted.getUTCFullYear();
+      const m1 = dateShifted.getUTCMonth() + 1; // 1..12
+      const day = dateShifted.getUTCDate();
+      const hh = dateShifted.getUTCHours();
+      const mm = dateShifted.getUTCMinutes();
+      const ss = dateShifted.getUTCSeconds();
+
+      const total = (m1 - 1) + monthsToAdd;
+      const y2 = y + Math.floor(total / 12);
+      const m2 = (total % 12) + 1; // 1..12
+
+      const lastDay = new Date(Date.UTC(y2, m2, 0)).getUTCDate();
+      const day2 = Math.min(day, lastDay);
+
+      return new Date(Date.UTC(y2, m2 - 1, day2, hh, mm, ss));
+    }
+
+    function wholeMonthsBetween(nowD, targetD){
+      let months = 0;
+      let cursor = nowD;
+      while (true){
+        const next = addMonthsClamped(cursor, 1);
+        if (next.getTime() <= targetD.getTime()){
+          cursor = next;
+          months++;
+          if (months > 36) break;
+        } else break;
+      }
+      return { months, cursor };
+    }
+
+    function formatMskNow(shiftedMs){
+      const d = new Date(shiftedMs);
+      const y = d.getUTCFullYear();
+      const mo = pad2(d.getUTCMonth()+1);
+      const da = pad2(d.getUTCDate());
+      const hh = pad2(d.getUTCHours());
+      const mm = pad2(d.getUTCMinutes());
+      const ss = pad2(d.getUTCSeconds());
+      return `${da}.${mo}.${y} ${hh}:${mm}:${ss}`;
+    }
+
+    function tick(){
+      const nowS = nowShiftedMs();
+      const nowD = new Date(nowS);
+      const year = nowD.getUTCFullYear();
+
+      const summerStartS = Date.UTC(year, 5, 1, 0, 0, 0); // 01.06
+      const summerEndS   = Date.UTC(year, 8, 1, 0, 0, 0); // 01.09
+
+      $("mskNow").textContent = `МСК: ${formatMskNow(nowS)}`;
+
+      const isSummer = (nowS >= summerStartS) && (nowS < summerEndS);
+
+      if (isSummer){
+        $("summerBox").style.display = "block";
+        $("countdownBox").style.display = "none";
+        $("headline").textContent = "Сейчас лето";
+        $("targetText").textContent = "☀️";
+        return;
+      } else {
+        $("summerBox").style.display = "none";
+        $("countdownBox").style.display = "block";
+        $("headline").textContent = "До лета осталось";
+      }
+
+      const targetYear = (nowS < summerStartS) ? year : (year + 1);
+      const targetS = Date.UTC(targetYear, 5, 1, 0, 0, 0);
+      const targetD = new Date(targetS);
+
+      $("targetText").textContent = `01.06.${targetYear}`;
+
+      const { months, cursor } = wholeMonthsBetween(nowD, targetD);
+      let restMs = targetS - cursor.getTime();
+      if (restMs < 0) restMs = 0;
+
+      const dayMs = 24 * 60 * 60 * 1000;
+      const hourMs = 60 * 60 * 1000;
+      const minMs = 60 * 1000;
+
+      const days = Math.floor(restMs / dayMs); restMs -= days * dayMs;
+      const hours = Math.floor(restMs / hourMs); restMs -= hours * hourMs;
+      const mins = Math.floor(restMs / minMs); restMs -= mins * minMs;
+      const secs = Math.floor(restMs / 1000);
+
+      $("m").textContent = months;
+      $("d").textContent = days;
+      $("h").textContent = hours;
+      $("min").textContent = mins;
+      $("s").textContent = secs;
+
+      $("subline").textContent = "Считаем по московскому времени";
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  </script>
 </body>
 </html>
