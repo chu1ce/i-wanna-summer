@@ -18,15 +18,11 @@
       --text: rgba(0,0,0,.88);
       --muted: rgba(0,0,0,.56);
       --radius: 18px;
-
-      /* фиксированная высота виджета под iframe */
-      --widget-w: 360px;
-      --widget-h: 190px;
+      --w: 360px;
     }
 
     *{ box-sizing: border-box; }
     html,body{ height:100%; }
-
     body{
       margin:0;
       background: var(--bg);
@@ -34,12 +30,10 @@
       place-items:center;
       font-family: Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
       color: var(--text);
-      padding: 10px;
     }
 
     .widget{
-      width: min(var(--widget-w), 100%);
-      height: var(--widget-h);
+      width: min(var(--w), 100%);
       border-radius: var(--radius);
       background: var(--card);
       border: 1px solid var(--stroke);
@@ -76,25 +70,6 @@
       background: rgba(0,0,0,.02);
     }
 
-    /* зона контента фиксирована — без прыжков */
-    .bodyArea{
-      position: relative;
-      height: calc(var(--widget-h) - 14px - 12px - 10px - 22px); /* грубая стабилизация */
-      min-height: 120px;
-    }
-
-    .panel{
-      position:absolute;
-      inset:0;
-      display:grid;
-      align-content:center;
-      transition: opacity .18s ease;
-    }
-    .panel[hidden]{
-      opacity: 0;
-      pointer-events: none;
-    }
-
     .grid{
       display:grid;
       grid-template-columns: repeat(5, minmax(0,1fr));
@@ -128,13 +103,27 @@
       line-height: 1.1;
     }
 
+    .footer{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .dot{
+      width:6px;height:6px;border-radius:50%;
+      background: rgba(0,0,0,.25);
+      display:inline-block;
+      transform: translateY(-1px);
+    }
+
     .summerBox{
       border: 1px solid var(--stroke);
       border-radius: 16px;
       padding: 14px 12px;
       text-align:center;
       background: rgba(0,0,0,.02);
-      width: 100%;
     }
     .summerBox h2{
       margin: 0 0 6px;
@@ -149,7 +138,6 @@
 
     /* узкие iframe */
     @media (max-width: 340px){
-      :root{ --widget-h: 240px; }
       .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
       .title{ white-space: normal; }
     }
@@ -162,40 +150,43 @@
       <div class="badge" id="targetText">01.06</div>
     </div>
 
-    <div class="bodyArea">
-      <!-- Countdown -->
-      <div class="panel" id="countdownPanel">
-        <div class="grid">
-          <div class="cell">
-            <div class="num" id="m">–</div>
-            <div class="lbl" id="mlbl">месяцев</div>
-          </div>
-          <div class="cell">
-            <div class="num" id="d">–</div>
-            <div class="lbl" id="dlbl">дней</div>
-          </div>
-          <div class="cell">
-            <div class="num" id="h">–</div>
-            <div class="lbl" id="hlbl">часов</div>
-          </div>
-          <div class="cell">
-            <div class="num" id="min">–</div>
-            <div class="lbl" id="minlbl">минут</div>
-          </div>
-          <div class="cell">
-            <div class="num" id="s">–</div>
-            <div class="lbl" id="slbl">секунд</div>
-          </div>
+    <!-- Countdown -->
+    <div id="countdownPanel">
+      <div class="grid">
+        <div class="cell">
+          <div class="num" id="m">–</div>
+          <div class="lbl" id="mlbl">месяцев</div>
+        </div>
+        <div class="cell">
+          <div class="num" id="d">–</div>
+          <div class="lbl" id="dlbl">дней</div>
+        </div>
+        <div class="cell">
+          <div class="num" id="h">–</div>
+          <div class="lbl" id="hlbl">часов</div>
+        </div>
+        <div class="cell">
+          <div class="num" id="min">–</div>
+          <div class="lbl" id="minlbl">минут</div>
+        </div>
+        <div class="cell">
+          <div class="num" id="s">–</div>
+          <div class="lbl" id="slbl">секунд</div>
         </div>
       </div>
+    </div>
 
-      <!-- Summer -->
-      <div class="panel" id="summerPanel" hidden>
-        <div class="summerBox">
-          <h2>Сейчас лето ☀️</h2>
-          <p>Время наслаждаться тёплыми днями.</p>
-        </div>
+    <!-- Summer -->
+    <div id="summerPanel" style="display:none;">
+      <div class="summerBox">
+        <h2>Сейчас лето ☀️</h2>
+        <p>Время наслаждаться тёплыми днями.</p>
       </div>
+    </div>
+
+    <div class="footer">
+      <span class="dot"></span>
+      <span id="mskNow">МСК: —</span>
     </div>
   </div>
 
@@ -206,6 +197,7 @@
     const OFFSET_MS = MSK_OFFSET_MIN * 60_000;
 
     const $ = (id) => document.getElementById(id);
+    const pad2 = (n) => String(n).padStart(2, "0");
     const nowShiftedMs = () => Date.now() + OFFSET_MS;
 
     function ruPlural(n, one, few, many){
@@ -214,6 +206,17 @@
       if (mod10 === 1 && mod100 !== 11) return one;
       if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return few;
       return many;
+    }
+
+    function formatMskNow(shiftedMs){
+      const d = new Date(shiftedMs);
+      const y = d.getUTCFullYear();
+      const mo = pad2(d.getUTCMonth()+1);
+      const da = pad2(d.getUTCDate());
+      const hh = pad2(d.getUTCHours());
+      const mm = pad2(d.getUTCMinutes());
+      const ss = pad2(d.getUTCSeconds());
+      return `${da}.${mo}.${y} ${hh}:${mm}:${ss}`;
     }
 
     function addMonthsClamped(dateShifted, monthsToAdd){
@@ -249,8 +252,8 @@
     }
 
     function showSummer(isSummer){
-      $("summerPanel").hidden = !isSummer;
-      $("countdownPanel").hidden = isSummer;
+      $("summerPanel").style.display = isSummer ? "block" : "none";
+      $("countdownPanel").style.display = isSummer ? "none" : "block";
 
       if (isSummer){
         $("headline").innerHTML = `Сейчас лето <span aria-hidden="true">☀️</span>`;
@@ -264,6 +267,8 @@
       const nowS = nowShiftedMs();
       const nowD = new Date(nowS);
       const year = nowD.getUTCFullYear();
+
+      $("mskNow").textContent = `МСК: ${formatMskNow(nowS)}`;
 
       // Лето: [01.06 00:00, 01.09 00:00) по МСК
       const summerStartS = Date.UTC(year, 5, 1, 0, 0, 0);
@@ -280,7 +285,6 @@
 
       $("targetText").textContent = `01.06.${targetYear}`;
 
-      // Месяцы (календарные) + остаток
       const { months, cursor } = wholeMonthsBetween(nowD, targetD);
       let restMs = targetS - cursor.getTime();
       if (restMs < 0) restMs = 0;
