@@ -4,47 +4,45 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>До лета</title>
+
+  <!-- JetBrains Mono (для цифр) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg: #0b0f17;
-      --card: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.10);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.66);
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
-      --radius: 16px;
-    }
-    @media (prefers-color-scheme: light){
-      :root{
-        --bg: #f6f7fb;
-        --card: rgba(0,0,0,.04);
-        --stroke: rgba(0,0,0,.08);
-        --text: rgba(0,0,0,.88);
-        --muted: rgba(0,0,0,.56);
-        --shadow: 0 10px 30px rgba(0,0,0,.10);
-      }
+      --bg: #ffffff;
+      --card: #ffffff;
+      --stroke: rgba(0,0,0,.10);
+      --text: rgba(0,0,0,.88);
+      --muted: rgba(0,0,0,.56);
+      --radius: 18px;
+
+      /* фиксированная высота виджета под iframe */
+      --widget-w: 360px;
+      --widget-h: 190px;
     }
 
     *{ box-sizing: border-box; }
     html,body{ height:100%; }
+
     body{
       margin:0;
-      background: radial-gradient(1200px 500px at 20% -10%, rgba(255,255,255,.08), transparent 60%),
-                  radial-gradient(900px 400px at 100% 0%, rgba(255,255,255,.06), transparent 55%),
-                  var(--bg);
+      background: var(--bg);
       display:grid;
       place-items:center;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
       color: var(--text);
       padding: 10px;
     }
 
     .widget{
-      width: min(360px, 100%);
+      width: min(var(--widget-w), 100%);
+      height: var(--widget-h);
       border-radius: var(--radius);
       background: var(--card);
       border: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
       padding: 14px 14px 12px;
       overflow: hidden;
     }
@@ -56,144 +54,166 @@
       gap: 10px;
       margin-bottom: 10px;
     }
+
     .title{
       font-size: 14px;
-      font-weight: 650;
+      font-weight: 700;
       letter-spacing: .2px;
       margin:0;
+      display:flex;
+      align-items:center;
+      gap: 6px;
+      white-space: nowrap;
     }
+
     .badge{
       font-size: 12px;
       color: var(--muted);
       border: 1px solid var(--stroke);
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
       white-space: nowrap;
+      background: rgba(0,0,0,.02);
+    }
+
+    /* зона контента фиксирована — без прыжков */
+    .bodyArea{
+      position: relative;
+      height: calc(var(--widget-h) - 14px - 12px - 10px - 22px); /* грубая стабилизация */
+      min-height: 120px;
+    }
+
+    .panel{
+      position:absolute;
+      inset:0;
+      display:grid;
+      align-content:center;
+      transition: opacity .18s ease;
+    }
+    .panel[hidden]{
+      opacity: 0;
+      pointer-events: none;
     }
 
     .grid{
       display:grid;
       grid-template-columns: repeat(5, minmax(0,1fr));
       gap: 8px;
-      margin-top: 6px;
     }
 
     .cell{
       border: 1px solid var(--stroke);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 10px 8px 8px;
       text-align:center;
-      background: rgba(255,255,255,.02);
-      min-height: 64px;
+      background: rgba(0,0,0,.02);
+      min-height: 66px;
       display:grid;
       align-content:center;
       gap: 4px;
     }
 
     .num{
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-variant-numeric: tabular-nums;
       font-size: 18px;
-      font-weight: 750;
+      font-weight: 700;
       line-height: 1.05;
+      letter-spacing: -0.2px;
     }
+
     .lbl{
       font-size: 11px;
       color: var(--muted);
       line-height: 1.1;
     }
 
-    .state{
-      margin: 6px 0 2px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .summer{
-      display:none;
+    .summerBox{
       border: 1px solid var(--stroke);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 14px 12px;
       text-align:center;
-      background: rgba(255,255,255,.02);
+      background: rgba(0,0,0,.02);
+      width: 100%;
     }
-    .summer h2{
+    .summerBox h2{
       margin: 0 0 6px;
       font-size: 18px;
       letter-spacing: .2px;
     }
-    .summer p{
+    .summerBox p{
       margin:0;
       color: var(--muted);
       font-size: 13px;
     }
 
-    .footer{
-      margin-top: 10px;
-      display:flex;
-      justify-content: space-between;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-    .dot{
-      width:6px;height:6px;border-radius:50%;
-      background: rgba(255,255,255,.35);
-      display:inline-block;
-      margin-right: 6px;
-      transform: translateY(-1px);
-    }
-
-    /* компактнее для очень узких iframe */
+    /* узкие iframe */
     @media (max-width: 340px){
+      :root{ --widget-h: 240px; }
       .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .title{ white-space: normal; }
     }
   </style>
 </head>
 <body>
   <div class="widget" role="group" aria-label="Счётчик до лета">
     <div class="top">
-      <h1 class="title" id="headline">До лета осталось</h1>
+      <h1 class="title" id="headline">До лета осталось <span aria-hidden="true">☀️</span></h1>
       <div class="badge" id="targetText">01.06</div>
     </div>
 
-    <div class="summer" id="summerBox">
-      <h2>Сейчас лето ☀️</h2>
-      <p>Время наслаждаться тёплыми днями.</p>
-    </div>
-
-    <div id="countdownBox">
-      <div class="state" id="subline">Считаем по московскому времени</div>
-      <div class="grid" id="grid">
-        <div class="cell"><div class="num" id="m">–</div><div class="lbl">месяцев</div></div>
-        <div class="cell"><div class="num" id="d">–</div><div class="lbl">дней</div></div>
-        <div class="cell"><div class="num" id="h">–</div><div class="lbl">часов</div></div>
-        <div class="cell"><div class="num" id="min">–</div><div class="lbl">минут</div></div>
-        <div class="cell"><div class="num" id="s">–</div><div class="lbl">секунд</div></div>
+    <div class="bodyArea">
+      <!-- Countdown -->
+      <div class="panel" id="countdownPanel">
+        <div class="grid">
+          <div class="cell">
+            <div class="num" id="m">–</div>
+            <div class="lbl" id="mlbl">месяцев</div>
+          </div>
+          <div class="cell">
+            <div class="num" id="d">–</div>
+            <div class="lbl" id="dlbl">дней</div>
+          </div>
+          <div class="cell">
+            <div class="num" id="h">–</div>
+            <div class="lbl" id="hlbl">часов</div>
+          </div>
+          <div class="cell">
+            <div class="num" id="min">–</div>
+            <div class="lbl" id="minlbl">минут</div>
+          </div>
+          <div class="cell">
+            <div class="num" id="s">–</div>
+            <div class="lbl" id="slbl">секунд</div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="footer">
-      <div><span class="dot"></span><span id="mskNow">МСК: —</span></div>
+      <!-- Summer -->
+      <div class="panel" id="summerPanel" hidden>
+        <div class="summerBox">
+          <h2>Сейчас лето ☀️</h2>
+          <p>Время наслаждаться тёплыми днями.</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Москва (MSK) сейчас UTC+3. Считаем всё в "сдвинутых" миллисекундах:
-    // shiftedMs = realUtcMs + offsetMs. Тогда Date(shiftedMs) + getUTC* дают "время по МСК".
+    // Москва (MSK) — UTC+3. Считаем в "сдвинутых" миллисекундах:
+    // shiftedMs = realUtcMs + offsetMs; затем берём getUTC* как "время по МСК".
     const MSK_OFFSET_MIN = 180;
     const OFFSET_MS = MSK_OFFSET_MIN * 60_000;
 
     const $ = (id) => document.getElementById(id);
+    const nowShiftedMs = () => Date.now() + OFFSET_MS;
 
-    function pad2(n){ return String(n).padStart(2, "0"); }
-
-    function nowShiftedMs(){
-      return Date.now() + OFFSET_MS;
-    }
-
-    function makeShiftedDateFromUTCParts(y, mo0, d, hh=0, mm=0, ss=0){
-      // mo0 = 0..11
-      return new Date(Date.UTC(y, mo0, d, hh, mm, ss));
+    function ruPlural(n, one, few, many){
+      const mod10 = n % 10;
+      const mod100 = n % 100;
+      if (mod10 === 1 && mod100 !== 11) return one;
+      if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return few;
+      return many;
     }
 
     function addMonthsClamped(dateShifted, monthsToAdd){
@@ -215,7 +235,6 @@
     }
 
     function wholeMonthsBetween(nowD, targetD){
-      // сколько полных "календарных" месяцев можно добавить к nowD, не перепрыгнув targetD
       let months = 0;
       let cursor = nowD;
       while (true){
@@ -223,21 +242,22 @@
         if (next.getTime() <= targetD.getTime()){
           cursor = next;
           months++;
-          if (months > 36) break; // защита
+          if (months > 36) break;
         } else break;
       }
       return { months, cursor };
     }
 
-    function formatMskNow(shiftedMs){
-      const d = new Date(shiftedMs);
-      const y = d.getUTCFullYear();
-      const mo = pad2(d.getUTCMonth()+1);
-      const da = pad2(d.getUTCDate());
-      const hh = pad2(d.getUTCHours());
-      const mm = pad2(d.getUTCMinutes());
-      const ss = pad2(d.getUTCSeconds());
-      return `${da}.${mo}.${y} ${hh}:${mm}:${ss}`;
+    function showSummer(isSummer){
+      $("summerPanel").hidden = !isSummer;
+      $("countdownPanel").hidden = isSummer;
+
+      if (isSummer){
+        $("headline").innerHTML = `Сейчас лето <span aria-hidden="true">☀️</span>`;
+        $("targetText").textContent = "☀️";
+      } else {
+        $("headline").innerHTML = `До лета осталось <span aria-hidden="true">☀️</span>`;
+      }
     }
 
     function tick(){
@@ -246,24 +266,12 @@
       const year = nowD.getUTCFullYear();
 
       // Лето: [01.06 00:00, 01.09 00:00) по МСК
-      const summerStartS = Date.UTC(year, 5, 1, 0, 0, 0); // 1 June
-      const summerEndS   = Date.UTC(year, 8, 1, 0, 0, 0); // 1 Sep
-
-      $("mskNow").textContent = `МСК: ${formatMskNow(nowS)}`;
-
+      const summerStartS = Date.UTC(year, 5, 1, 0, 0, 0);
+      const summerEndS   = Date.UTC(year, 8, 1, 0, 0, 0);
       const isSummer = (nowS >= summerStartS) && (nowS < summerEndS);
 
-      if (isSummer){
-        $("summerBox").style.display = "block";
-        $("countdownBox").style.display = "none";
-        $("headline").textContent = "Сейчас лето";
-        $("targetText").textContent = "☀️";
-        return;
-      } else {
-        $("summerBox").style.display = "none";
-        $("countdownBox").style.display = "block";
-        $("headline").textContent = "До лета осталось";
-      }
+      showSummer(isSummer);
+      if (isSummer) return;
 
       // Цель: ближайшее 01.06 00:00 по МСК
       const targetYear = (nowS < summerStartS) ? year : (year + 1);
@@ -272,7 +280,7 @@
 
       $("targetText").textContent = `01.06.${targetYear}`;
 
-      // Месяцы (календарные), затем остаток в днях/часах/минутах/секундах
+      // Месяцы (календарные) + остаток
       const { months, cursor } = wholeMonthsBetween(nowD, targetD);
       let restMs = targetS - cursor.getTime();
       if (restMs < 0) restMs = 0;
@@ -292,7 +300,11 @@
       $("min").textContent = mins;
       $("s").textContent = secs;
 
-      $("subline").textContent = "Считаем по московскому времени";
+      $("mlbl").textContent   = ruPlural(months, "месяц", "месяца", "месяцев");
+      $("dlbl").textContent   = ruPlural(days,   "день", "дня", "дней");
+      $("hlbl").textContent   = ruPlural(hours,  "час", "часа", "часов");
+      $("minlbl").textContent = ruPlural(mins,   "минута", "минуты", "минут");
+      $("slbl").textContent   = ruPlural(secs,   "секунда", "секунды", "секунд");
     }
 
     tick();
