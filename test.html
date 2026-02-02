@@ -14,8 +14,8 @@
     :root{
       color-scheme: light dark;
 
-      /* Light */
-      --bg: #ffffff;
+      /* LIGHT */
+      --page-bg: transparent;             /* важно: чтобы iframe не красил фон */
       --card: #ffffff;
       --stroke: rgba(0,0,0,.10);
       --text: rgba(0,0,0,.88);
@@ -29,22 +29,23 @@
 
     @media (prefers-color-scheme: dark){
       :root{
-        /* Dark */
-        --bg: #0b0f17;
-        --card: rgba(255,255,255,.06);
+        /* DARK (нейтрально-серый, без синевы) */
+        --page-bg: transparent;          /* фон iframe прозрачный */
+        --card: rgba(22,22,22,.72);      /* стеклянная карточка */
         --stroke: rgba(255,255,255,.12);
         --text: rgba(255,255,255,.92);
         --muted: rgba(255,255,255,.66);
-        --soft: rgba(255,255,255,.05);
-        --dot: rgba(255,255,255,.30);
+        --soft: rgba(255,255,255,.06);
+        --dot: rgba(255,255,255,.32);
       }
     }
 
     *{ box-sizing: border-box; }
     html,body{ height:100%; }
+
     body{
       margin:0;
-      background: var(--bg);
+      background: var(--page-bg);
       display:grid;
       place-items:center;
       font-family: Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
@@ -58,6 +59,10 @@
       border: 1px solid var(--stroke);
       padding: 14px 14px 12px;
       overflow: hidden;
+
+      /* чтобы подстраивалось под фон страницы */
+      -webkit-backdrop-filter: blur(10px) saturate(120%);
+      backdrop-filter: blur(10px) saturate(120%);
     }
 
     .top{
@@ -207,8 +212,6 @@
   </div>
 
   <script>
-    // Москва (MSK) — UTC+3. Считаем в "сдвинутых" миллисекундах:
-    // shiftedMs = realUtcMs + offsetMs; затем берём getUTC* как "время по МСК".
     const MSK_OFFSET_MIN = 180;
     const OFFSET_MS = MSK_OFFSET_MIN * 60_000;
 
@@ -237,7 +240,7 @@
 
     function addMonthsClamped(dateShifted, monthsToAdd){
       const y = dateShifted.getUTCFullYear();
-      const m1 = dateShifted.getUTCMonth() + 1; // 1..12
+      const m1 = dateShifted.getUTCMonth() + 1;
       const day = dateShifted.getUTCDate();
       const hh = dateShifted.getUTCHours();
       const mm = dateShifted.getUTCMinutes();
@@ -245,7 +248,7 @@
 
       const total = (m1 - 1) + monthsToAdd;
       const y2 = y + Math.floor(total / 12);
-      const m2 = (total % 12) + 1; // 1..12
+      const m2 = (total % 12) + 1;
 
       const lastDay = new Date(Date.UTC(y2, m2, 0)).getUTCDate();
       const day2 = Math.min(day, lastDay);
@@ -286,7 +289,6 @@
 
       $("mskNow").textContent = `МСК: ${formatMskNow(nowS)}`;
 
-      // Лето: [01.06 00:00, 01.09 00:00) по МСК
       const summerStartS = Date.UTC(year, 5, 1, 0, 0, 0);
       const summerEndS   = Date.UTC(year, 8, 1, 0, 0, 0);
       const isSummer = (nowS >= summerStartS) && (nowS < summerEndS);
@@ -294,7 +296,6 @@
       showSummer(isSummer);
       if (isSummer) return;
 
-      // Цель: ближайшее 01.06 00:00 по МСК
       const targetYear = (nowS < summerStartS) ? year : (year + 1);
       const targetS = Date.UTC(targetYear, 5, 1, 0, 0, 0);
       const targetD = new Date(targetS);
