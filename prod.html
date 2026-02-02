@@ -12,20 +12,40 @@
 
   <style>
     :root{
-      --bg: #ffffff;
+      color-scheme: light dark;
+
+      /* LIGHT */
+      --page-bg: transparent;          /* чтобы iframe не красил фон */
       --card: #ffffff;
       --stroke: rgba(0,0,0,.10);
       --text: rgba(0,0,0,.88);
       --muted: rgba(0,0,0,.56);
+      --soft: rgba(0,0,0,.02);
+      --dot: rgba(0,0,0,.25);
+
       --radius: 18px;
       --w: 360px;
     }
 
+    @media (prefers-color-scheme: dark){
+      :root{
+        /* DARK: плоско, нейтрально, ближе к стандартным dark UI */
+        --page-bg: transparent;
+        --card: rgba(26,26,26,.92);    /* не стекло, почти solid */
+        --stroke: rgba(255,255,255,.08);
+        --text: rgba(255,255,255,.92);
+        --muted: rgba(255,255,255,.62);
+        --soft: rgba(255,255,255,.045);
+        --dot: rgba(255,255,255,.26);
+      }
+    }
+
     *{ box-sizing: border-box; }
     html,body{ height:100%; }
+
     body{
       margin:0;
-      background: var(--bg);
+      background: var(--page-bg);
       display:grid;
       place-items:center;
       font-family: Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
@@ -67,7 +87,7 @@
       padding: 4px 10px;
       border-radius: 999px;
       white-space: nowrap;
-      background: rgba(0,0,0,.02);
+      background: var(--soft);
     }
 
     .grid{
@@ -81,7 +101,7 @@
       border-radius: 16px;
       padding: 10px 8px 8px;
       text-align:center;
-      background: rgba(0,0,0,.02);
+      background: var(--soft);
       min-height: 66px;
       display:grid;
       align-content:center;
@@ -113,7 +133,7 @@
     }
     .dot{
       width:6px;height:6px;border-radius:50%;
-      background: rgba(0,0,0,.25);
+      background: var(--dot);
       display:inline-block;
       transform: translateY(-1px);
     }
@@ -123,7 +143,7 @@
       border-radius: 16px;
       padding: 14px 12px;
       text-align:center;
-      background: rgba(0,0,0,.02);
+      background: var(--soft);
     }
     .summerBox h2{
       margin: 0 0 6px;
@@ -136,7 +156,6 @@
       font-size: 13px;
     }
 
-    /* узкие iframe */
     @media (max-width: 340px){
       .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
       .title{ white-space: normal; }
@@ -150,7 +169,6 @@
       <div class="badge" id="targetText">01.06</div>
     </div>
 
-    <!-- Countdown -->
     <div id="countdownPanel">
       <div class="grid">
         <div class="cell">
@@ -176,7 +194,6 @@
       </div>
     </div>
 
-    <!-- Summer -->
     <div id="summerPanel" style="display:none;">
       <div class="summerBox">
         <h2>Сейчас лето ☀️</h2>
@@ -191,8 +208,6 @@
   </div>
 
   <script>
-    // Москва (MSK) — UTC+3. Считаем в "сдвинутых" миллисекундах:
-    // shiftedMs = realUtcMs + offsetMs; затем берём getUTC* как "время по МСК".
     const MSK_OFFSET_MIN = 180;
     const OFFSET_MS = MSK_OFFSET_MIN * 60_000;
 
@@ -221,7 +236,7 @@
 
     function addMonthsClamped(dateShifted, monthsToAdd){
       const y = dateShifted.getUTCFullYear();
-      const m1 = dateShifted.getUTCMonth() + 1; // 1..12
+      const m1 = dateShifted.getUTCMonth() + 1;
       const day = dateShifted.getUTCDate();
       const hh = dateShifted.getUTCHours();
       const mm = dateShifted.getUTCMinutes();
@@ -229,7 +244,7 @@
 
       const total = (m1 - 1) + monthsToAdd;
       const y2 = y + Math.floor(total / 12);
-      const m2 = (total % 12) + 1; // 1..12
+      const m2 = (total % 12) + 1;
 
       const lastDay = new Date(Date.UTC(y2, m2, 0)).getUTCDate();
       const day2 = Math.min(day, lastDay);
@@ -270,7 +285,6 @@
 
       $("mskNow").textContent = `МСК: ${formatMskNow(nowS)}`;
 
-      // Лето: [01.06 00:00, 01.09 00:00) по МСК
       const summerStartS = Date.UTC(year, 5, 1, 0, 0, 0);
       const summerEndS   = Date.UTC(year, 8, 1, 0, 0, 0);
       const isSummer = (nowS >= summerStartS) && (nowS < summerEndS);
@@ -278,7 +292,6 @@
       showSummer(isSummer);
       if (isSummer) return;
 
-      // Цель: ближайшее 01.06 00:00 по МСК
       const targetYear = (nowS < summerStartS) ? year : (year + 1);
       const targetS = Date.UTC(targetYear, 5, 1, 0, 0, 0);
       const targetD = new Date(targetS);
